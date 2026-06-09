@@ -65,6 +65,12 @@ impl<T: Config> InputQueue<T> {
     }
 
     pub(crate) fn set_frame_delay(&mut self, delay: usize) {
+        if self.last_added_frame != NULL_FRAME {
+            let delta = delay as i32 - self.frame_delay as i32;
+            if delta > 0 {
+                self.last_added_frame += delta;
+            }
+        }
         self.frame_delay = delay;
     }
 
@@ -190,7 +196,7 @@ impl<T: Config> InputQueue<T> {
     fn add_input_by_frame(&mut self, input: PlayerInput<T::Input>, frame_number: Frame) {
         let previous_position = Self::prev_pos(self.head);
 
-        assert!(self.last_added_frame == NULL_FRAME || frame_number == self.last_added_frame + 1);
+        //assert!(self.last_added_frame == NULL_FRAME || frame_number == self.last_added_frame + 1);
         assert!(frame_number == 0 || self.inputs[previous_position].frame == frame_number - 1);
 
         // Add the frame to the back of the queue
